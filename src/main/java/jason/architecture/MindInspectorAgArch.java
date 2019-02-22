@@ -317,7 +317,7 @@ public class MindInspectorAgArch extends AgArch {
     void showAgState(Document state) { // in GUI
         if (state != null) {
             try {
-                String sMind = getAgStateAsString(state, false);
+                String sMind = getAgStateAsString(state, true);
                 if (sMind.equals(previousShownText))
                     return; // nothing to log
                 previousShownText = sMind;

@@ -1435,7 +1435,7 @@ public class TransitionSystem {
 
     public void sense() {
         try {
-            if (logger.isLoggable(Level.FINE)) logger.fine("Start new reasoning cycle");
+            if (logger.isLoggable(Level.FINE)) logger.fine("---------- START NEW REASONING CYCLE "+ getUserAgArch().getCycleNumber()+"-------------");
             getUserAgArch().reasoningCycleStarting();
 
             C.resetSense();
