@@ -189,9 +189,9 @@ public class MASConsoleGUI {
             // print in output
             synchronized (output) {
                 try {
-                    if (output.getDocument().getLength() > 60000) {
-                        cleanConsole();
-                    }
+//                    if (output.getDocument().getLength() > 60000) {
+//                        cleanConsole();
+//                    }
                     output.append(s);
                 } catch (IllegalArgumentException e) {
                 }
