@@ -358,7 +358,7 @@ public class Pred extends Structure {
                 break;
             if (lt.isTail())
                 thisTail = lt.getTail();
-            if (annot.isVar() && !i2Reset) { // when we arrive to the vars in the annots of this, we need to start searching from the begin again
+            if (annot.isVar()) { // when we arrive to the vars in the annots of this, we need to start searching from the begin again
                 i2Reset = true;
                 i2 = pAnnots.iterator();
                 pAnnot = null;
