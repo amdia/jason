@@ -149,6 +149,7 @@ public class Agent {
 
 
     /** parse and load the agent code, asSrc may be null */
+    @Deprecated
     public void initAg(String asSrc) throws JasonException {
         initAg();
         load(asSrc);
@@ -199,7 +200,7 @@ public class Agent {
 
     /** parse and load asl code */
     public void load(InputStream in, String sourceId) throws JasonException {
-        try {
+        try {           
             parseAS(in, sourceId);
 
             if (getPL().hasMetaEventPlans())
@@ -953,7 +954,7 @@ public class Agent {
                     if (!removed && !beliefToDel.isGround()) { // then try to unify the parameter with a belief in BB
                         Iterator<Literal> il = getBB().getCandidateBeliefs(beliefToDel.getPredicateIndicator());
                         if (il != null) {
-                                while (il.hasNext()) {
+                            while (il.hasNext()) {
                                 Literal linBB = il.next();
                                 if (u.unifies(linBB, beliefToDel)) {
                                     il.remove();
@@ -961,7 +962,7 @@ public class Agent {
                                     removed = true;
                                     break;
                                 }
-                                }
+                            }
                         }
                     }
 
