@@ -407,7 +407,10 @@ public class TransitionSystem {
         if (conf.C.hasEvent()) {
             // Rule SelEv1
             confP.C.SE = conf.ag.selectEvent(confP.C.getEvents());
-            if (logger.isLoggable(Level.FINE))
+            boolean to_log = true;
+            if(confP.C.SE.getIntention() != null)
+            	to_log = confP.C.SE.getIntention().peek().getPlan().getLabel().getAnnots().toString().contains("no_log") ? false : true;
+            if (logger.isLoggable(Level.FINE) && to_log)
                 logger.fine("Selected event "+confP.C.SE);
             if (confP.C.SE != null) {
                 if (ag.hasCustomSelectOption() || setts.verbose() == 2) // verbose == 2 means debug mode
@@ -489,7 +492,8 @@ public class TransitionSystem {
 
         if (confP.C.SO != null) {
             confP.stepDeliberate = State.AddIM;
-            if (logger.isLoggable(Level.FINE)) logger.fine("Selected option "+confP.C.SO+" for event "+confP.C.SE);
+            boolean to_log = confP.C.SO.getPlan().getLabel().getAnnots().toString().contains("no_log") ? false : true;
+            if (logger.isLoggable(Level.FINE) && to_log) logger.fine("Selected option "+confP.C.SO+" for event "+confP.C.SE);
         } else {
             logger.fine("** selectOption returned null!");
             generateGoalDeletionFromEvent(JasonException.createBasicErrorAnnots("no_option", "selectOption returned null"));
@@ -649,7 +653,8 @@ public class TransitionSystem {
         if (!conf.C.isAtomicIntentionSuspended() && conf.C.hasRunningIntention()) { // the isAtomicIntentionSuspended is necessary because the atomic intention may be suspended (the above removeAtomicInt returns null in that case)
             // but no other intention could be selected
             confP.C.SI = conf.ag.selectIntention(conf.C.getRunningIntentions());
-            if (logger.isLoggable(Level.FINE)) logger.fine("Selected intention "+confP.C.SI);
+            boolean to_log = confP.C.SI.peek().getPlan().getLabel().getAnnots().toString().contains("no_log") ? false : true;
+            if (logger.isLoggable(Level.FINE) && to_log) logger.fine("Selected intention "+confP.C.SI);
             if (confP.C.SI != null) { // the selectIntention function returned null
                 return;
             }
@@ -1092,13 +1097,14 @@ public class TransitionSystem {
 
                 for (Option opt: rp) {
                     LogicalFormula context = opt.getPlan().getContext();
-                    if (getLogger().isLoggable(Level.FINE))
+                    boolean to_log = opt.getPlan().getLabel().getAnnots().toString().contains("no_log") ? false : true;
+                    if (getLogger().isLoggable(Level.FINE) && to_log)
                         getLogger().log(Level.FINE, "option for "+C.SE.getTrigger()+" is plan "+opt.getPlan().getLabel() + " " + opt.getPlan().getTrigger() + " : " + context + " -- with unification "+opt.getUnifier());
 
                     if (context == null) { // context is true
                         if (ap == null) ap = new LinkedList<>();
                         ap.add(opt);
-                        if (getLogger().isLoggable(Level.FINE))
+                        if (getLogger().isLoggable(Level.FINE) && to_log)
                             getLogger().log(Level.FINE, "     "+opt.getPlan().getLabel() + " is applicable with unification "+opt.getUnifier());
                     } else {
                         boolean allUnifs = opt.getPlan().isAllUnifs();
