@@ -8,7 +8,7 @@ import jason.runtime.RuntimeServices;
 public abstract class BaseRuntimeServices implements RuntimeServices {
 
     protected BaseCentralisedMAS masRunner;
-    protected Collection<String> defaultAgArchs = new ArrayList<>();
+    private Collection<String> defaultAgArchs = new ArrayList<>();
     
     public BaseRuntimeServices(BaseCentralisedMAS masRunner) {
         this.masRunner = masRunner;
@@ -41,8 +41,8 @@ public abstract class BaseRuntimeServices implements RuntimeServices {
         return masRunner.getAgs().keySet().size();
     }
 
-    public void stopMAS() throws Exception {
-        masRunner.finish();
+    public void stopMAS(int deadline) throws Exception {
+        masRunner.finish(deadline);
     }
 
     @Override    

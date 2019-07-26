@@ -162,6 +162,7 @@ public class Agent {
             boolean parsingOk = true;
             if (asSrc != null && !asSrc.isEmpty()) {
                 asSrc = asSrc.replaceAll("\\\\", "/");
+                setASLSrc(asSrc);
 
                 if (asSrc.startsWith(SourcePath.CRPrefix)) {
                     // loads the class from a jar file (for example)
@@ -191,7 +192,6 @@ public class Agent {
             loadKqmlPlans();
             addInitialBelsInBB(); // in case kqml plan file has some belief 
 
-            setASLSrc(asSrc);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error loading code from "+asSrc, e);
             throw new JasonException("Error loading code from "+asSrc + " ---- " + e);
@@ -226,7 +226,7 @@ public class Agent {
             if (c.getKqmlFunctor().equals(Message.kqmlReceivedFunctor)) {
                 String file = Message.kqmlDefaultPlans.substring(Message.kqmlDefaultPlans.indexOf("/"));
                 if (JasonException.class.getResource(file) != null) {
-                    parseAS(JasonException.class.getResource(file)); //, "kqmlPlans.asl");
+                    parseAS(JasonException.class.getResource(file), PlanLibrary.KQML_PLANS_FILE); // the kqmlPlans.asl argument should be used here (see hasUserKqmlReceived in PlanLibrary)
                 } else {
                     logger.warning("The kqmlPlans.asl was not found!");
                 }
@@ -401,8 +401,11 @@ public class Agent {
 
     /** Adds beliefs and plans form an URL */
     public boolean parseAS(URL asURL) {
+        return parseAS(asURL, asURL.toString());    
+    }
+    public boolean parseAS(URL asURL, String sourceId) {
         try {
-            parseAS(asURL.openStream(), asURL.toString());
+            parseAS(asURL.openStream(), sourceId);
             logger.fine("as2j: AgentSpeak program '" + asURL + "' parsed successfully!");
             return true;
         } catch (IOException e) {
