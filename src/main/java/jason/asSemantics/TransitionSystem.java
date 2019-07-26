@@ -404,7 +404,10 @@ public class TransitionSystem {
         if (C.hasEvent()) {
             // Rule SelEv1
             C.SE = ag.selectEvent(C.getEvents());
-            if (logger.isLoggable(Level.FINE))
+            boolean to_log = true;
+            if(C.SE.getIntention() != null)
+            	to_log = C.SE.getIntention().peek().getPlan().getLabel().getAnnots().toString().contains("no_log") ? false : true;
+            if (logger.isLoggable(Level.FINE) && to_log)
                 logger.fine("Selected event "+C.SE);
             if (C.SE != null) {
                 if (ag.hasCustomSelectOption() || setts.verbose() == 2) // verbose == 2 means debug mode
@@ -486,7 +489,8 @@ public class TransitionSystem {
 
         if (C.SO != null) {
             stepDeliberate = State.AddIM;
-            if (logger.isLoggable(Level.FINE)) logger.fine("Selected option "+C.SO+" for event "+C.SE);
+            boolean to_log = C.SO.getPlan().getLabel().getAnnots().toString().contains("no_log") ? false : true;
+            if (logger.isLoggable(Level.FINE) && to_log) logger.fine("Selected option "+C.SO+" for event "+C.SE);
         } else {
             logger.fine("** selectOption returned null!");
             generateGoalDeletionFromEvent(JasonException.createBasicErrorAnnots("no_option", "selectOption returned null"));
@@ -646,7 +650,8 @@ public class TransitionSystem {
         if (!C.isAtomicIntentionSuspended() && C.hasRunningIntention()) { // the isAtomicIntentionSuspended is necessary because the atomic intention may be suspended (the above removeAtomicInt returns null in that case)
             // but no other intention could be selected
             C.SI = ag.selectIntention(C.getRunningIntentions());
-            if (logger.isLoggable(Level.FINE)) logger.fine("Selected intention "+C.SI);
+            boolean to_log = C.SI.peek().getPlan().getLabel().getAnnots().toString().contains("no_log") ? false : true;
+            if (logger.isLoggable(Level.FINE) && to_log) logger.fine("Selected intention "+C.SI);
             if (C.SI != null) { // the selectIntention function returned null
                 return;
             }
