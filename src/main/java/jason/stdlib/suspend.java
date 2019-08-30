@@ -126,6 +126,7 @@ public class suspend extends DefaultInternalAction {
             if (i.hasTrigger(g, un)) {
                 i.setSuspended(true);
                 C.addPendingIntention(SUSPENDED_INT+i.getId(), i);
+                logger.info(g.toString() + " suspended");
             }
         }
 
@@ -133,6 +134,7 @@ public class suspend extends DefaultInternalAction {
         for (Intention i: C.getPendingIntentions().values()) {
             if (i.hasTrigger(g, un)) {
                 i.setSuspended(true);
+                logger.info(g.toString() + " suspended");
             }
         }
 
@@ -144,6 +146,7 @@ public class suspend extends DefaultInternalAction {
                 C.removeRunningIntention(i);
                 C.addPendingIntention(SUSPENDED_INT+i.getId(), i);
                 //System.out.println("sus "+g+" from I "+i.getId()+" #"+C.getPendingIntentions().size());
+                logger.info(g.toString() + " suspended");
             }
         }
 
@@ -153,6 +156,7 @@ public class suspend extends DefaultInternalAction {
             suspendIntention = true;
             i.setSuspended(true);
             C.addPendingIntention(SELF_SUSPENDED_INT+i.getId(), i);
+            logger.info(g.toString() + " suspended");
         }
 
         // suspending G in Events
@@ -164,8 +168,10 @@ public class suspend extends DefaultInternalAction {
             if (un.unifies(g, e.getTrigger()) || (i != null && i.hasTrigger(g, un))) {
                 C.removeEvent(e);
                 C.addPendingEvent(SUSPENDED_INT+e.getTrigger()+(c++), e);
-                if (i != null)
+                if (i != null) {
                     i.setSuspended(true);
+                    logger.info(g.toString() + " suspended");
+                }
                 //System.out.println("sus "+g+" from E "+e.getTrigger());
             }
 

@@ -486,8 +486,11 @@ public class MASConsoleGUI {
                 String terms = "";
                 if(l.getTerms() != null)
                     terms = l.getTerms().toString();
-                
-                outputBelief.append("  "+l.getFunctor().toString()+terms+"\n");
+                if(l.negated()) {
+                    outputBelief.append("  ~"+l.getFunctor().toString()+terms+"\n");
+                }else {
+                    outputBelief.append("  "+l.getFunctor().toString()+terms+"\n");
+                }
             }
         } else {
             spcenter.remove(spOutputBelief);

@@ -102,6 +102,7 @@ public class resume extends DefaultInternalAction {
             Intention i = C.getPendingIntentions().get(k);
             if (i.isSuspended() && i.hasTrigger(g, un)) {
                 i.setSuspended(false);
+                logger.info(g.toString() + " resumed");
                 boolean notify = true;
                 if (k.startsWith(suspend.SUSPENDED_INT)) { // if not SUSPENDED_INT, it was suspended while already in PI, so, do not remove it from PI, just change the suspeded status
                     ik.remove();
@@ -136,8 +137,10 @@ public class resume extends DefaultInternalAction {
                 if (un.unifies(g, e.getTrigger()) || (i != null && i.hasTrigger(g, un))) {
                     ik.remove();
                     C.addEvent(e);
-                    if (i != null)
+                    if (i != null) {
                         i.setSuspended(false);
+                        logger.info(g.toString() + " resumed");
+                    }
                     //System.out.println("res "+g+" from E "+e.getTrigger());
                 }
             }

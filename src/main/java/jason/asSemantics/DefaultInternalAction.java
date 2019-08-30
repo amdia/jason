@@ -5,6 +5,8 @@ import jason.asSyntax.Literal;
 import jason.asSyntax.Term;
 
 import java.io.Serializable;
+import java.util.logging.Logger;
+
 
 /**
  * Default implementation of the internal action interface (it simply returns false
@@ -17,6 +19,7 @@ import java.io.Serializable;
 public class DefaultInternalAction implements InternalAction, Serializable {
 
     private static final long serialVersionUID = 1L;
+    protected Logger logger = Logger.getLogger(DefaultInternalAction.class.getName());
 
     public boolean suspendIntention()   {
         return false;
