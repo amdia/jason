@@ -447,17 +447,17 @@ public class MASConsoleGUI {
     class LiteralTimeComparator implements Comparator<Literal> {
         @Override
         public int compare(Literal a, Literal b) {
-            return getAddTime(a) - getAddTime(b) ;
+            return (int) (getAddTime(a) - getAddTime(b)) ;
         }
     }
     
-    public int getAddTime(Literal l) {
-        int result = 0;
+    public double getAddTime(Literal l) {
+        double result = 0;
         Literal addTime = l.getAnnot("add_time");
         if(addTime != null) {
             Term time = addTime.getTerm(0);
             if(time != null) {
-                result = Integer.parseInt(time.toString());
+                result = Double.parseDouble(time.toString());
             }
         }
         return result;
@@ -621,8 +621,8 @@ public class MASConsoleGUI {
             }
             
             if(s.contains("Exception")) {
-            	exceptionCounter++;
-            	exCounter.setText("Exception: "+exceptionCounter);
+                exceptionCounter++;
+                exCounter.setText("Exception: "+exceptionCounter);
             }
 
             // print in output

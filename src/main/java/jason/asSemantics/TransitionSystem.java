@@ -652,7 +652,7 @@ public class TransitionSystem {
             C.SI = ag.selectIntention(C.getRunningIntentions());
             boolean to_log = true;
             if(C.SI != null && C.SI.peek().getPlan().getLabel() != null)
-            	to_log = C.SI.peek().getPlan().getLabel().getAnnots().toString().contains("no_log") ? false : true;
+                to_log = C.SI.peek().getPlan().getLabel().getAnnots().toString().contains("no_log") ? false : true;
             if (logger.isLoggable(Level.FINE) && to_log) logger.fine("Selected intention "+C.SI);
             if (C.SI != null) { // the selectIntention function returned null
                 return;
