@@ -104,7 +104,7 @@ public class resume extends DefaultInternalAction {
                 i.setSuspended(false);
                 logger.info(g.toString() + " resumed");
                 boolean notify = true;
-                if (k.startsWith(suspend.SUSPENDED_INT)) { // if not SUSPENDED_INT, it was suspended while already in PI, so, do not remove it from PI, just change the suspeded status
+                if (k.startsWith(suspend.SUSPENDED_INT)) { // if not SUSPENDED_INT, it was suspended while already in PI, so, do not remove it from PI, just change the suspended status
                     ik.remove();
 
                     // add it back in I if not in PA
