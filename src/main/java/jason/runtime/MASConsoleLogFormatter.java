@@ -2,6 +2,7 @@ package jason.runtime;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.logging.LogRecord;
 
 /**
@@ -12,6 +13,8 @@ public class MASConsoleLogFormatter extends java.util.logging.Formatter {
     public String format(LogRecord l) {
         StringBuilder s = new StringBuilder("[");
         s.append(getAgName(l));
+        s.append(":");
+        s.append((new Date()).getTime());
         s.append("] ");
         s.append(l.getMessage());
         if (l.getThrown() != null) {
