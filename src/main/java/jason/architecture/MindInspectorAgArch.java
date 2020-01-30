@@ -78,9 +78,11 @@ public class MindInspectorAgArch extends AgArch {
      */
     @Override
     public void stop() {
-        if (mindInspectorFrame != null)
+        if (mindInspectorFrame != null) {
             mindInspectorFrame.dispose();
-        super.stop();
+            mindInspectorFrame = null;
+        }
+        //super.stop();
     }
 
     @Override
@@ -294,7 +296,7 @@ public class MindInspectorAgArch extends AgArch {
             if (mindInspectorPanel != null) { // output on GUI
                 if (mindInspectorFreeze == null || !mindInspectorFreeze.isSelected()) {
                     showAgState(state);
-    
+
                     if (mindInspectorHistory != null) {
                         mindInspectorHistory.add(state);
                         setupSlider();

@@ -110,7 +110,13 @@ public class CentralisedAgArch extends AgArch implements Runnable {
         if (myThread != null)
             myThread.interrupt();
         getTS().getAg().stopAg();
-        getUserAgArch().stop(); // stops all archs
+
+        // stop all archs
+        AgArch f = getUserAgArch();
+        while (f != null) {
+            f.stop();
+            f = f.getNextAgArch();
+        }
     }
 
 
@@ -199,7 +205,7 @@ public class CentralisedAgArch extends AgArch implements Runnable {
         int ca = cyclesAct;
         if (ca != 1) { // not the default value, limit the value to the number of intentions
             ca = Math.min(cyclesAct, ts.getC().getNbRunningIntentions());
-            if (ca == 0) 
+            if (ca == 0)
                 ca = 1;
         }
         while (running && i++ < ca && !ts.canSleepAct()) {
@@ -285,7 +291,7 @@ public class CentralisedAgArch extends AgArch implements Runnable {
 
     // Default perception assumes Complete and Accurate sensing.
     @Override
-    public Collection<Literal> perceive() {     
+    public Collection<Literal> perceive() {
         super.perceive();
         if (infraEnv == null) return null;
         Collection<Literal> percepts = infraEnv.getUserEnvironment().getPercepts(getAgName());

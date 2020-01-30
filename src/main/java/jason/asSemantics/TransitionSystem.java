@@ -156,8 +156,6 @@ public class TransitionSystem {
                 if (e.getTrigger().isAddition() && e.getTrigger().isGoal())
                     gl.goalStarted(e);
             }
-
-            public void intentionAdded(Intention i) {  }
         };
         C.addEventListener(cl);
         listenersMap.put(gl,cl);
@@ -325,7 +323,7 @@ public class TransitionSystem {
                         un.unifies(answers, listOfAnswers);
                     }
                     listOfAnswers.append(content);
-                    int nbReceivers = ((ListTerm)send.getTerm(0)).size();
+                    int nbReceivers = ((ListTerm)rec).size();
                     if (listOfAnswers.size() == nbReceivers) { // all agents have answered
                         resumeSyncAskIntention(m.getInReplyTo(), send.getTerm(3), listOfAnswers);
                     }
@@ -471,7 +469,7 @@ public class TransitionSystem {
             // intention
             Intention i = C.SE.intention;
             joinRenamedVarsIntoIntentionUnifier(i.peek(), i.peek().unif);
-            updateIntention(i);
+            removeActionReQueue(i);
         } else if (setts.requeue()) {
             // if external, then needs to check settings
             C.addEvent(C.SE);
@@ -555,7 +553,7 @@ public class TransitionSystem {
                 //System.out.println(top.getTrigger().getLiteral().getPredicateIndicator()+"=2="+im.getTrigger().getLiteral().getPredicateIndicator());
                 //System.out.println(top.getTrigger()+"=3="+im.getTrigger());
 
-                // next test if the condition for TOR (comparing top and the IM being added) 
+                // next test if the condition for TOR (comparing top and the IM being added)
                 if (top != null &&
                         top.getTrigger().isAddition() && im.getTrigger().isAddition() && // failure plans should not be subject of TRO (see BugFail)
                         top.getTrigger().isGoal() && im.getTrigger().isGoal() && // are both goal
@@ -567,7 +565,7 @@ public class TransitionSystem {
                     IntendedMeans imBase = C.SE.intention.peek(); // base = where the new IM will be place on top of
                     if (imBase != null && imBase.renamedVars != null) {
                         // move top relevant values into the base (relevant = renamed vars in base)
-                        
+
                         for (VarTerm v: imBase.renamedVars) {
                             VarTerm vvl = (VarTerm)imBase.renamedVars.function.get(v);
                             Term t = top.unif.get(vvl);
@@ -580,7 +578,7 @@ public class TransitionSystem {
                                     im.unif.function.put(vvl, t);
                                 }
                             } else {
-                                // the vvl was renamed again in top, just replace the new value in base 
+                                // the vvl was renamed again in top, just replace the new value in base
                                 VarTerm v0 = (VarTerm)top.renamedVars.function.get(vvl);
                                 if (v0 != null) {
                                     imBase.renamedVars.function.put(v, v0);
@@ -600,8 +598,11 @@ public class TransitionSystem {
 
     private void applyProcAct() throws JasonException {
         stepAct = State.SelInt; // default next step
-        if (C.hasFeedbackAction()) { // suspended intentions are not considered 
-            ActionExec a = ag.selectAction(C.getFeedbackActions());
+        if (C.hasFeedbackAction()) { // suspended intentions are not considered
+            ActionExec a = null;
+            synchronized (C.getFeedbackActions()) {
+                a = ag.selectAction(C.getFeedbackActions());
+            }
             if (a != null) {
                 final Intention curInt = a.getIntention();
 
@@ -611,7 +612,7 @@ public class TransitionSystem {
                 if (C.removePendingAction(curInt.getId()) != null) {
                     if (a.getResult()) {
                         // add the intention back in I
-                        updateIntention(curInt);
+                        removeActionReQueue(curInt);
                         applyClrInt(curInt);
 
                         if (hasGoalListener())
@@ -636,7 +637,7 @@ public class TransitionSystem {
 
     private void applySelInt() throws JasonException {
         stepAct = State.ExecInt; // default next step
-        
+
         // Rule for Atomic Intentions
         C.SI = C.removeAtomicIntention();
         if (C.SI != null) {
@@ -678,7 +679,7 @@ public class TransitionSystem {
 
         if (im.isFinished()) {
             // for empty plans! may need unif, etc
-            updateIntention(curInt);
+            removeActionReQueue(curInt);
             return;
         }
         Unifier     u = im.unif;
@@ -755,7 +756,7 @@ public class TransitionSystem {
                 }
 
                 if (ok && !ia.suspendIntention())
-                    updateIntention(curInt);
+                    removeActionReQueue(curInt);
             } catch (NoValueException e) {
                 // add not ground vars in the message
                 String msg = e.getMessage() + " Ungrounded variables = [";
@@ -793,7 +794,7 @@ public class TransitionSystem {
             Iterator<Unifier> iu = ((LogicalFormula)bTerm).logicalConsequence(ag, u);
             if (iu.hasNext()) {
                 im.unif = iu.next();
-                updateIntention(curInt);
+                removeActionReQueue(curInt);
             } else {
                 String msg = "Constraint "+h+" was not satisfied ("+h.getSrcInfo()+") un="+u;
                 generateGoalDeletion(curInt, JasonException.createBasicErrorAnnots(new Atom("constraint_failed"), msg));
@@ -814,14 +815,14 @@ public class TransitionSystem {
             body = prepareBodyForEvent(body, u, null);
             evt  = C.addAchvGoal(body, Intention.EmptyInt);
             checkHardDeadline(evt);
-            updateIntention(curInt);
+            removeActionReQueue(curInt);
             break;
 
         // Rule Test
         case test:
             LogicalFormula f = (LogicalFormula)bTerm;
             if (ag.believes(f, u)) {
-                updateIntention(curInt);
+                removeActionReQueue(curInt);
             } else {
                 boolean fail = true;
                 // generate event when using literal in the test (no events for log. expr. like ?(a & b))
@@ -894,10 +895,10 @@ public class TransitionSystem {
                     // generate events
                     updateEvents(result,newfocus);
                     if (!isSameFocus) {
-                        updateIntention(curInt);
+                        removeActionReQueue(curInt);
                     }
                 } else {
-                    updateIntention(curInt);
+                    removeActionReQueue(curInt);
                 }
             } catch (RevisionFailedException re) {
                 generateGoalDeletion(curInt, null);
@@ -917,15 +918,15 @@ public class TransitionSystem {
             }
             // call BRF
             try {
-                List<Literal>[] result = ag.brf(null, body, curInt); 
+                List<Literal>[] result = ag.brf(null, body, curInt); // the intention is not the new focus
                 if (result != null) { // really change something
                     // generate events
                     updateEvents(result,newfocus);
                     if (!isSameFocus) {
-                        updateIntention(curInt);
+                        removeActionReQueue(curInt);
                     }
                 } else {
-                    updateIntention(curInt);
+                    removeActionReQueue(curInt);
                 }
             } catch (RevisionFailedException re) {
                 generateGoalDeletion(curInt, null);
@@ -992,7 +993,7 @@ public class TransitionSystem {
                 // nothing to do
                 return;
             }
-            
+
             // remove the finished IM from the top of the intention
             IntendedMeans topIM = i.pop();
             Trigger topTrigger = topIM.getTrigger();
@@ -1164,7 +1165,7 @@ public class TransitionSystem {
     }
 
     /** remove the top action and requeue the current intention */
-    private void updateIntention(Intention i) {
+    private void removeActionReQueue(Intention i) {
         if (!i.isFinished()) {
             i.peek().removeCurrentStep();
             C.addRunningIntention(i);
@@ -1187,7 +1188,7 @@ public class TransitionSystem {
         Term bodyPart = im.getCurrentStep().getBodyTerm().capply(im.unif);
         setDefaultFailureAnnots(failEvent, bodyPart, failAnnots);
 
-        if (im.isGoalAdd()) {
+        if (im.getTrigger().isGoal()) { // isGoalAdd()) {
             // notify listener
             if (hasGoalListener())
                 for (GoalListener gl: goalListeners) {
@@ -1346,7 +1347,7 @@ public class TransitionSystem {
                         if (drop) {
                             try {
                                 FailWithDeadline ia = new FailWithDeadline(intention, evt.getTrigger());
-                                ia.findGoalAndDrop(TransitionSystem.this, body, new Unifier());
+                                ia.drop(TransitionSystem.this, body, new Unifier());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -1373,7 +1374,7 @@ public class TransitionSystem {
          *           3 = simply removed without event
          */
         @Override
-        public int dropGoal(Intention i, Trigger g, TransitionSystem ts, Unifier un) throws JasonException {
+        public int dropIntention(Intention i, IMCondition c, TransitionSystem ts, Unifier un) throws JasonException {
             if (i != null) {
                 // only consider dropping if the intention is the one that created the deadline goal
                 if (intToDrop == null) {
@@ -1384,21 +1385,22 @@ public class TransitionSystem {
                     return 0;
                 }
 
-                if (i.dropGoal(g, un)) {
+                IntendedMeans im = i.dropGoal(c, un);
+                if (im != null) {
                     // notify listener
                     if (ts.hasGoalListener())
                         for (GoalListener gl: ts.getGoalListeners())
-                            gl.goalFailed(g);
+                            gl.goalFailed(im.getTrigger());
 
                     // generate failure event
-                    Event failEvent = ts.findEventForFailure(i, g); // find fail event for the goal just dropped
+                    Event failEvent = ts.findEventForFailure(i, im.getTrigger()); // find fail event for the goal just dropped
                     if (failEvent != null) {
                         failEvent.getTrigger().getLiteral().addAnnots(JasonException.createBasicErrorAnnots("deadline_reached", ""));
                         ts.getC().addEvent(failEvent);
-                        ts.getLogger().fine("'hard_deadline("+g+")' is generating a goal deletion event: " + failEvent.getTrigger());
+                        ts.getLogger().fine("'hard_deadline("+im.getTrigger()+")' is generating a goal deletion event: " + failEvent.getTrigger());
                         return 2;
                     } else { // i is finished or without failure plan
-                        ts.getLogger().fine("'hard_deadline("+g+")' is removing the intention without event:\n" + i);
+                        ts.getLogger().fine("'hard_deadline("+im.getTrigger()+")' is removing the intention without event:\n" + i);
                         return 3;
                     }
                 }
