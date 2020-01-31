@@ -70,6 +70,11 @@ public class mas2j {
       boolean debugmas = args.length >= 2 && args[1].equals("debug");
       boolean runmas   = debugmas || args.length >= 2 && args[1].equals("run");
 
+      String template = "";
+      if(!debugmas && !runmas && args.length == 2) {
+        template = args[1];
+      }
+
       // parsing
       try {
 		project = parser.mas();
@@ -81,8 +86,8 @@ public class mas2j {
 		System.out.println("mas2j: "+name+" parsed successfully!\n");
 		MASLauncherInfraTier launcher = project.getInfrastructureFactory().createMASLauncher();
 		launcher.setProject(project);
-		launcher.writeScripts(debugmas, true);
-
+		launcher.writeScripts(debugmas, true, template);
+			
 		if (runmas) {
 		    new Thread(launcher, "MAS-Launcher").start();
 		} else {

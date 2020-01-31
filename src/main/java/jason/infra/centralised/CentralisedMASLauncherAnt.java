@@ -160,7 +160,7 @@ public class CentralisedMASLauncherAnt implements MASLauncherInfraTier {
     }
 
     /** write the scripts necessary to run the project */
-    public boolean writeScripts(boolean debug, boolean useBuildFileName) {
+    public boolean writeScripts(boolean debug, boolean useBuildFileName, String templatePath) {
         this.useBuildFileName = useBuildFileName;
 
         //if (hasCBuild()) {
@@ -169,7 +169,11 @@ public class CentralisedMASLauncherAnt implements MASLauncherInfraTier {
         //}
 
         try {
-            String script = Config.get().getTemplate("build-template.xml");
+            String script;
+            if(templatePath.isEmpty())
+                script = Config.get().getTemplate("build-template.xml");
+            else
+                script = Config.get().getTemplate(templatePath);
 
             // replace <....>
             script = replaceMarks(script, debug);

@@ -58,7 +58,7 @@ public class RunJasonProject {
 
             launcher = project.getInfrastructureFactory().createMASLauncher();
             launcher.setProject(project);
-            launcher.writeScripts(false, false);
+            launcher.writeScripts(false, false, "");
 
             new Thread(launcher, "MAS-Launcher").start();
         } catch(Exception e) {

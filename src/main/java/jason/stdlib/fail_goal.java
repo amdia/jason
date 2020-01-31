@@ -11,7 +11,6 @@ import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.Literal;
 import jason.asSyntax.Term;
-import jason.asSyntax.Trigger;
 import jason.asSyntax.Trigger.TEOperator;
 
 /**
@@ -115,10 +114,10 @@ public class fail_goal extends succeed_goal {
                 if (failEvent != null) {
                 	failEvent = new Event(failEvent.getTrigger().capply(un),failEvent.getIntention());
                     ts.getC().addEvent(failEvent);
-                    ts.getLogger().info("'.fail_goal("+g+")' is generating a goal deletion event: " + failEvent.getTrigger());
+                    ts.getLogger().info("'.fail_goal("+im.getTrigger()+")' is generating a goal deletion event: " + failEvent.getTrigger());
                     return 2;
                 } else { // i is finished or without failure plan
-                    ts.getLogger().info("'.fail_goal("+g+")' is removing the intention without event:\n" + i);
+                    ts.getLogger().info("'.fail_goal("+im.getTrigger()+")' is removing the intention without event:\n" + i);
                     if (ts.hasGoalListener())
                         for (GoalListener gl: ts.getGoalListeners())
                             gl.goalFinished(im.getTrigger(), FinishStates.unachieved);
@@ -128,7 +127,7 @@ public class fail_goal extends succeed_goal {
                 }
             }
         }else {
-        	ts.getLogger().info("'.fail_goal("+g+")' no succeeded");
+        	ts.getLogger().info("'.fail_goal not succeeded");
         }
         return 0;
     }

@@ -801,7 +801,12 @@ public class Config extends Properties {
                         if (bt.exists()) {
                             in = new BufferedReader(new FileReader(bt));
                         } else {
-                            in = new BufferedReader(new InputStreamReader(getDetaultResource(templateName)));
+                            bt = new File(templateName);
+                            if(bt.exists()) {
+                                in = new BufferedReader(new FileReader(bt));
+                            } else {
+                                in = new BufferedReader(new InputStreamReader(getDetaultResource(templateName)));
+                            }
                         }
                     }
                 }
@@ -826,6 +831,7 @@ public class Config extends Properties {
     }
 
     public InputStream getDetaultResource(String templateName) throws IOException {
+        System.out.print(TransitionSystem.class.getResource("/templates/"+templateName).getPath());
         return TransitionSystem.class.getResource("/templates/"+templateName).openStream();
     }
 
