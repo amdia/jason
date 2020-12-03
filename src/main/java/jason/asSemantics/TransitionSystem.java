@@ -1460,7 +1460,7 @@ public class TransitionSystem implements Serializable {
 
     public void sense() {
         try {
-            if (logger.isLoggable(Level.FINE)) logger.fine("Start sense");
+            if (logger.isLoggable(Level.FINER)) logger.fine("Start sense");
 
             C.resetSense();
 
