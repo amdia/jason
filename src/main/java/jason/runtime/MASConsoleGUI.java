@@ -477,7 +477,7 @@ public class MASConsoleGUI {
             List<Literal> list = new ArrayList<Literal>();
             while (it.hasNext()) {
                 Literal bel = it.next();
-//              if(!bel.getNS().equals(ASSyntax.createAtom("kqml")))
+              if(!bel.getNS().equals(ASSyntax.createAtom("kqml")))
                     list.add(bel);
             }
             Comparator<Literal> cmp = new LiteralTimeComparator();
