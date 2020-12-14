@@ -493,7 +493,7 @@ public abstract class Literal extends DefaultTerm implements LogicalFormula {
 	                                current = u;
 	                                return;
 	                            } else {
-	                            	//if (isInDebug) ag.getLogger().log(Level.FINE, "     | belief "+belInBB+" is NOT an option for "+ Literal.this+ " -- "+u);
+	                            	if (isInDebug) ag.getLogger().log(Level.FINE, "     | belief "+belInBB+" is NOT an option for "+ Literal.this+ " -- "+u);
 	                            }
 	                        }
 	                    }
