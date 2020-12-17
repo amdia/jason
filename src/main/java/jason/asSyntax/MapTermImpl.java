@@ -142,7 +142,7 @@ public class MapTermImpl extends DefaultTerm implements MapTerm {
         StringBuilder json = new StringBuilder(identation+"{\n");
         String c = "";
         for (Term k: map.keySet()) {
-            json.append(c+"  \""+k+"\" : "+ map.get(k).getAsJSON(identation+"  ") );
+            json.append(c+"  \""+((StringTermImpl) k).getString()+"\" : "+ map.get(k).getAsJSON(identation+"  ") );
             c = ",\n";
         }
         json.append("\n"+identation+"}");
