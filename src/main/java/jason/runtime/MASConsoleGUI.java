@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.LogManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -85,7 +86,7 @@ public class MASConsoleGUI {
     protected JButton             toggleBelief;
     protected boolean             displayBeliefs = false;
     protected boolean             autoscroll = true;
-    protected List<Agent>		  beliefAgents = null;
+    protected CopyOnWriteArrayList<Agent>		  beliefAgents = null;
     protected JPanel              pBt     = null;
     protected JPanel              pcenter;
     protected OutputStreamAdapter out;
@@ -466,7 +467,9 @@ public class MASConsoleGUI {
            
             JSplitPane currentSplitPane = spcenter;
             int i=0;
-            for(Agent ag : beliefAgents) {
+            Iterator<Agent> beliefAgentsIte = beliefAgents.iterator();
+            while(beliefAgentsIte.hasNext()) {
+            	Agent ag = beliefAgentsIte.next();
             	JTextArea currentOutput = new JTextArea("Beliefs\n");
             	currentOutput.setEditable(false);
             	JScrollPane currentOutputPane = new JScrollPane(currentOutput);
@@ -515,7 +518,7 @@ public class MASConsoleGUI {
     public void addBeliefAgent(Agent ag) {
         displayBeliefs = true;
         if(beliefAgents == null)
-        	beliefAgents = new ArrayList<Agent>();
+        	beliefAgents = new CopyOnWriteArrayList<Agent>();
         
         beliefAgents.add(ag);
 
