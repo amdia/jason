@@ -461,61 +461,82 @@ public class MASConsoleGUI {
         return result;
     }
     
-    public void updateBeliefList() {
-        if(beliefAgents != null && beliefAgents.size() > 0) {
-            toggleBelief.setEnabled(true);
-           
-            JSplitPane currentSplitPane = spcenter;
-            int i=0;
-            Iterator<Agent> beliefAgentsIte = beliefAgents.iterator();
-            while(beliefAgentsIte.hasNext()) {
-            	Agent ag = beliefAgentsIte.next();
-            	JTextArea currentOutput = new JTextArea("Beliefs\n");
-            	currentOutput.setEditable(false);
-            	JScrollPane currentOutputPane = new JScrollPane(currentOutput);
-            	if(i==beliefAgents.size()-1) {
-            		//last
-            		currentSplitPane.setRightComponent(currentOutputPane);
-            		currentSplitPane.setDividerLocation(i==0?(ratio-0.1*beliefAgents.size()):1d/(beliefAgents.size()-(i-1)));
-            	} else {
-            		JSplitPane newSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, currentOutputPane, null);
-            		currentSplitPane.setRightComponent(newSplitPane);
-            		currentSplitPane.setDividerLocation(i==0?(ratio-0.1*beliefAgents.size()):1d/(beliefAgents.size()-(i-1)));
-            		currentSplitPane = newSplitPane;
-            	}
-            	i++;
-            	
-            	currentOutput.setText(ag.getTS().getAgArch().getAgName()+"\n\n");
-	            Iterator<Literal> it = ag.getBB().iterator();
-	            List<Literal> list = new ArrayList<Literal>();
-	            while (it.hasNext()) {
-	                Literal bel = it.next();
-	              if(!bel.getNS().equals(ASSyntax.createAtom("kqml")) && !bel.isRule())
-	                    list.add(bel);
-	            }
-	            Comparator<Literal> cmp = new LiteralTimeComparator();
-	            Collections.sort(list, cmp);
-	            it = list.iterator();
-	            while(it.hasNext()) {
-	                Literal l = it.next();
-	                String terms = "";
-	                if(l.getTerms() != null)
-	                    terms = l.getTerms().toString();
-	                if(l.negated()) {
-	                	currentOutput.append("  ~"+l.getFunctor().toString()+terms+"\n");
-	                }else {
-	                	currentOutput.append("  "+l.getFunctor().toString()+terms+"\n");
-	                }
-	            }
-            }
-        } else {
-            //if(spcenter.getRightComponent() != null) spcenter.remove(spcenter.getRightComponent());
-            toggleBelief.setEnabled(false);
-        }
+    private int nbAgents = 0;
+    public synchronized void updateBeliefList() {
+           if(beliefAgents != null && beliefAgents.size() > 0) {
+               toggleBelief.setEnabled(true);
+              
+               JSplitPane currentSplitPane = spcenter;
+               int i=0;
+               Iterator<Agent> beliefAgentsIte = beliefAgents.iterator();
+               while(beliefAgentsIte.hasNext()) {
+               	Agent ag = beliefAgentsIte.next();
+                 JTextArea currentOutput = null;
+                 
+                 if(nbAgents != beliefAgents.size()) {
+                   currentOutput = new JTextArea("Beliefs\n");
+                   currentOutput.setEditable(false);
+                   JScrollPane currentOutputPane = new JScrollPane(currentOutput);
+                   if(i==beliefAgents.size()-1) {
+                     //last
+                     currentSplitPane.setRightComponent(currentOutputPane);
+                     currentSplitPane.setDividerLocation(i==0?(ratio-0.1*beliefAgents.size()):1d/(beliefAgents.size()-(i-1)));
+                   } else {
+                     JSplitPane newSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, currentOutputPane, null);
+                     currentSplitPane.setRightComponent(newSplitPane);
+                     currentSplitPane.setDividerLocation(i==0?(ratio-0.1*beliefAgents.size()):1d/(beliefAgents.size()-(i-1)));
+                     currentSplitPane = newSplitPane;
+                   }
+                 } else {
+                   
+                   if(i==beliefAgents.size()-1) {
+                     //last
+                     JScrollPane jsp = (JScrollPane) currentSplitPane.getRightComponent();
+                     currentOutput = (JTextArea)jsp.getViewport().getView();
+                   } else {
+                     JSplitPane jsp = (JSplitPane) currentSplitPane.getRightComponent();
+                     currentOutput = (JTextArea)((JScrollPane)jsp.getLeftComponent()).getViewport().getView();
+                     currentSplitPane = jsp;
+                   }
+                   
+                 }
+               	i++;
+               	
+                 String output = ag.getTS().getAgArch().getAgName()+"\n\n";
+   	            Iterator<Literal> it = ag.getBB().iterator();
+   	            List<Literal> list = new ArrayList<Literal>();
+   	            while (it.hasNext()) {
+   	                Literal bel = it.next();
+   	              if(!bel.getNS().equals(ASSyntax.createAtom("kqml")) && !bel.isRule())
+   	                    list.add(bel);
+   	            }
+   	            Comparator<Literal> cmp = new LiteralTimeComparator();
+   	            Collections.sort(list, cmp);
+   	            it = list.iterator();
+   	            while(it.hasNext()) {
+   	                Literal l = it.next();
+   	                String terms = "";
+   	                if(l.getTerms() != null)
+   	                    terms = l.getTerms().toString();
+   	                if(l.negated()) {
+   	                	output+=("  ~"+l.getFunctor().toString()+terms+"\n");
+   	                }else {
+   	                	output+=("  "+l.getFunctor().toString()+terms+"\n");
+   	                }
+   	            }
+                 if(!currentOutput.getText().equals(output)) {
+                   currentOutput.setText(output);
+                 }
+               }
+               nbAgents = beliefAgents.size();
+           } else {
+               //if(spcenter.getRightComponent() != null) spcenter.remove(spcenter.getRightComponent());
+               toggleBelief.setEnabled(false);
+           }
 
-    }
+       }
     
-    public void addBeliefAgent(Agent ag) {
+    public synchronized void addBeliefAgent(Agent ag) {
         displayBeliefs = true;
         if(beliefAgents == null)
         	beliefAgents = new CopyOnWriteArrayList<Agent>();
