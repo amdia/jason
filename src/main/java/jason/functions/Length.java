@@ -39,5 +39,11 @@ public class Length extends DefaultArithFunction  {
     public boolean checkArity(int a) {
         return a == 1;
     }
+    
+    //may cause some issue in some cases ?
+    @Override
+    public boolean allowUngroundTerms() {
+        return true;
+    }
 
 }

@@ -86,7 +86,7 @@ public class MASConsoleGUI {
     protected JButton             toggleBelief;
     protected boolean             displayBeliefs = false;
     protected boolean             autoscroll = true;
-    protected CopyOnWriteArrayList<Agent>		  beliefAgents = null;
+    protected CopyOnWriteArrayList<Agent>         beliefAgents = null;
     protected JPanel              pBt     = null;
     protected JPanel              pcenter;
     protected OutputStreamAdapter out;
@@ -436,8 +436,8 @@ public class MASConsoleGUI {
     }
     
     protected void toggleBeliefs() {
-    	if(!displayBeliefs) spcenter.setDividerLocation(ratio-0.1*beliefAgents.size());
-    	else spcenter.setDividerLocation(0.99);
+        if(!displayBeliefs) spcenter.setDividerLocation(ratio-0.1*beliefAgents.size());
+        else spcenter.setDividerLocation(0.99);
         
         displayBeliefs = !displayBeliefs;
     }
@@ -470,7 +470,7 @@ public class MASConsoleGUI {
                int i=0;
                Iterator<Agent> beliefAgentsIte = beliefAgents.iterator();
                while(beliefAgentsIte.hasNext()) {
-               	Agent ag = beliefAgentsIte.next();
+                Agent ag = beliefAgentsIte.next();
                  JTextArea currentOutput = null;
                  
                  if(nbAgents != beliefAgents.size()) {
@@ -500,30 +500,30 @@ public class MASConsoleGUI {
                    }
                    
                  }
-               	i++;
-               	
+                i++;
+                
                  String output = ag.getTS().getAgArch().getAgName()+"\n\n";
-   	            Iterator<Literal> it = ag.getBB().iterator();
-   	            List<Literal> list = new ArrayList<Literal>();
-   	            while (it.hasNext()) {
-   	                Literal bel = it.next();
-   	              if(!bel.getNS().equals(ASSyntax.createAtom("kqml")) && !bel.isRule())
-   	                    list.add(bel);
-   	            }
-   	            Comparator<Literal> cmp = new LiteralTimeComparator();
-   	            Collections.sort(list, cmp);
-   	            it = list.iterator();
-   	            while(it.hasNext()) {
-   	                Literal l = it.next();
-   	                String terms = "";
-   	                if(l.getTerms() != null)
-   	                    terms = l.getTerms().toString();
-   	                if(l.negated()) {
-   	                	output+=("  ~"+l.getFunctor().toString()+terms+"\n");
-   	                }else {
-   	                	output+=("  "+l.getFunctor().toString()+terms+"\n");
-   	                }
-   	            }
+                Iterator<Literal> it = ag.getBB().iterator();
+                List<Literal> list = new ArrayList<Literal>();
+                while (it.hasNext()) {
+                    Literal bel = it.next();
+                  if(!bel.getNS().equals(ASSyntax.createAtom("kqml")) && !bel.isRule())
+                        list.add(bel);
+                }
+                Comparator<Literal> cmp = new LiteralTimeComparator();
+                Collections.sort(list, cmp);
+                it = list.iterator();
+                while(it.hasNext()) {
+                    Literal l = it.next();
+                    String terms = "";
+                    if(l.getTerms() != null)
+                    	terms = "("+l.getTerms().toString().substring(1, l.getTerms().toString().length()-1)+")";
+                    if(l.negated()) {
+                        output+=("  ~"+l.getFunctor().toString()+terms+"\n");
+                    }else {
+                        output+=("  "+l.getFunctor().toString()+terms+"\n");
+                    }
+                }
                  if(!currentOutput.getText().equals(output)) {
                    currentOutput.setText(output);
                  }
@@ -539,7 +539,7 @@ public class MASConsoleGUI {
     public synchronized void addBeliefAgent(Agent ag) {
         displayBeliefs = true;
         if(beliefAgents == null)
-        	beliefAgents = new CopyOnWriteArrayList<Agent>();
+            beliefAgents = new CopyOnWriteArrayList<Agent>();
         
         beliefAgents.add(ag);
 
