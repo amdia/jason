@@ -1,14 +1,5 @@
 package jason.runtime;
 
-import jason.asSemantics.Agent;
-import jason.asSemantics.CircumstanceListener;
-import jason.asSemantics.Event;
-import jason.asSyntax.ASSyntax;
-import jason.asSyntax.Literal;
-import jason.asSyntax.Term;
-import jason.infra.centralised.BaseCentralisedMAS;
-import jason.infra.centralised.BaseDialogGUI;
-import jason.util.Pair;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -21,9 +12,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,6 +49,16 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
+
+import jason.asSemantics.Agent;
+import jason.asSemantics.CircumstanceListener;
+import jason.asSemantics.Event;
+import jason.asSyntax.ASSyntax;
+import jason.asSyntax.Literal;
+import jason.asSyntax.Term;
+import jason.infra.centralised.BaseCentralisedMAS;
+import jason.infra.centralised.BaseDialogGUI;
+import jason.util.Pair;
 
 /** the GUI console to output log messages */
 public class MASConsoleGUI {
@@ -87,6 +93,7 @@ public class MASConsoleGUI {
     protected boolean             displayBeliefs = false;
     protected boolean             autoscroll = true;
     protected CopyOnWriteArrayList<Agent>         beliefAgents = null;
+    protected boolean saveBeliefsToFile = false;
     protected JPanel              pBt     = null;
     protected JPanel              pcenter;
     protected OutputStreamAdapter out;
@@ -517,7 +524,7 @@ public class MASConsoleGUI {
                     Literal l = it.next();
                     String terms = "";
                     if(l.getTerms() != null)
-                    	terms = "("+l.getTerms().toString().substring(1, l.getTerms().toString().length()-1)+")";
+                        terms = "("+l.getTerms().toString().substring(1, l.getTerms().toString().length()-1)+")";
                     if(l.negated()) {
                         output+=("  ~"+l.getFunctor().toString()+terms+"\n");
                     }else {
@@ -552,8 +559,12 @@ public class MASConsoleGUI {
         ag.getTS().getC().addEventListener(cl);
         updateBeliefList();
     }
+    
+    public void setSaveBeliefsToFile(boolean saveBeliefsToFile) {
+		this.saveBeliefsToFile = saveBeliefsToFile;
+	}
 
-    public void cleanConsole() {
+	public void cleanConsole() {
         output.setText("");
     }
 
@@ -688,7 +699,42 @@ public class MASConsoleGUI {
         if (masConsole != null && masConsole.frame != null)
             masConsole.frame.setVisible(false);
         if (out != null)
-            out.restoreOriginalOut();
+        	out.restoreOriginalOut();
+        if(saveBeliefsToFile) {
+        	File  f = new File("log/beliefs");
+        	if(!f.exists()){
+        		f.mkdirs();
+        	}
+        	int counter = 0;
+        	String file_name; 
+        	Path path;
+        	do {
+        		file_name = "run_"+counter;
+        		path = Paths.get("log/beliefs/"+file_name);
+        		counter++;
+        	} while(Files.exists(path));
+        	List<String> s_list = new ArrayList<String>();
+        	JSplitPane currentSplitPane = spcenter;
+        	for(int i = 0; i < beliefAgents.size(); i++) {
+        		JTextArea currentOutput;
+        		if(i==beliefAgents.size()-1) {
+        			//last
+        			JScrollPane jsp = (JScrollPane) currentSplitPane.getRightComponent();
+        			currentOutput = (JTextArea)jsp.getViewport().getView();
+        		} else {
+        			JSplitPane jsp = (JSplitPane) currentSplitPane.getRightComponent();
+        			currentOutput = (JTextArea)((JScrollPane)jsp.getLeftComponent()).getViewport().getView();
+        			currentSplitPane = jsp;
+        		}
+        		s_list.add(currentOutput.getText());
+        	}
+        	try {
+        		Files.write(path, s_list, StandardCharsets.UTF_8);
+        	} catch (IOException e) {
+        		e.printStackTrace();
+        	}
+        }     
+
         try {
             if (BaseCentralisedMAS.getRunner() != null) {
                 FileWriter f = new FileWriter(BaseCentralisedMAS.stopMASFileName);
