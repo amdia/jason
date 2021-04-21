@@ -74,7 +74,14 @@ public class Unifier implements Cloneable, Iterable<VarTerm>, Serializable {
         */
         return vl;
     }
-
+    
+    /**
+     * gets the value for a Var
+     */
+    public Term getFirstValue(VarTerm vtp) {
+        return function.get(vtp);
+    }
+    
     public VarTerm getVarFromValue(Term vl) {
         for (VarTerm v: function.keySet()) {
             Term vvl = function.get(v);
