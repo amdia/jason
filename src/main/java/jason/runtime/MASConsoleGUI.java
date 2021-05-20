@@ -88,7 +88,7 @@ public class MASConsoleGUI {
     protected JScrollPane         spOutput;
     //protected JScrollPane         spOutputBelief;
     protected JSplitPane          spcenter;
-    protected double              ratio = 0.9;
+    protected double              ratio = 0.5;
     protected JButton             toggleBelief;
     protected boolean             displayBeliefs = false;
     protected boolean             autoscroll = true;
@@ -117,9 +117,10 @@ public class MASConsoleGUI {
             }
         });
         frame.getContentPane().setLayout(new BorderLayout());
-        int h = 600;
-        int w = (int)(h*1.618);
-        frame.setBounds((int)(h*0.618), 20, w, h);
+//        int h = 600;
+//        int w = (int)(h*1.618);
+//        frame.setBounds((int)(h*0.618), 20, w, h);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
     }
 
     protected void initMainPanel() {
@@ -561,10 +562,10 @@ public class MASConsoleGUI {
     }
     
     public void setSaveBeliefsToFile(boolean saveBeliefsToFile) {
-		this.saveBeliefsToFile = saveBeliefsToFile;
-	}
+        this.saveBeliefsToFile = saveBeliefsToFile;
+    }
 
-	public void cleanConsole() {
+    public void cleanConsole() {
         output.setText("");
     }
 
@@ -699,40 +700,40 @@ public class MASConsoleGUI {
         if (masConsole != null && masConsole.frame != null)
             masConsole.frame.setVisible(false);
         if (out != null)
-        	out.restoreOriginalOut();
+            out.restoreOriginalOut();
         if(saveBeliefsToFile) {
-        	File  f = new File("log/beliefs");
-        	if(!f.exists()){
-        		f.mkdirs();
-        	}
-        	int counter = 0;
-        	String file_name; 
-        	Path path;
-        	do {
-        		file_name = "run_"+counter;
-        		path = Paths.get("log/beliefs/"+file_name);
-        		counter++;
-        	} while(Files.exists(path));
-        	List<String> s_list = new ArrayList<String>();
-        	JSplitPane currentSplitPane = spcenter;
-        	for(int i = 0; i < beliefAgents.size(); i++) {
-        		JTextArea currentOutput;
-        		if(i==beliefAgents.size()-1) {
-        			//last
-        			JScrollPane jsp = (JScrollPane) currentSplitPane.getRightComponent();
-        			currentOutput = (JTextArea)jsp.getViewport().getView();
-        		} else {
-        			JSplitPane jsp = (JSplitPane) currentSplitPane.getRightComponent();
-        			currentOutput = (JTextArea)((JScrollPane)jsp.getLeftComponent()).getViewport().getView();
-        			currentSplitPane = jsp;
-        		}
-        		s_list.add(currentOutput.getText());
-        	}
-        	try {
-        		Files.write(path, s_list, StandardCharsets.UTF_8);
-        	} catch (IOException e) {
-        		e.printStackTrace();
-        	}
+            File  f = new File("log/beliefs");
+            if(!f.exists()){
+                f.mkdirs();
+            }
+            int counter = 0;
+            String file_name; 
+            Path path;
+            do {
+                file_name = "run_"+counter;
+                path = Paths.get("log/beliefs/"+file_name);
+                counter++;
+            } while(Files.exists(path));
+            List<String> s_list = new ArrayList<String>();
+            JSplitPane currentSplitPane = spcenter;
+            for(int i = 0; i < beliefAgents.size(); i++) {
+                JTextArea currentOutput;
+                if(i==beliefAgents.size()-1) {
+                    //last
+                    JScrollPane jsp = (JScrollPane) currentSplitPane.getRightComponent();
+                    currentOutput = (JTextArea)jsp.getViewport().getView();
+                } else {
+                    JSplitPane jsp = (JSplitPane) currentSplitPane.getRightComponent();
+                    currentOutput = (JTextArea)((JScrollPane)jsp.getLeftComponent()).getViewport().getView();
+                    currentSplitPane = jsp;
+                }
+                s_list.add(currentOutput.getText());
+            }
+            try {
+                Files.write(path, s_list, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }     
 
         try {
