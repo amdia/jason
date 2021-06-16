@@ -843,6 +843,13 @@ public class ListTermImpl extends Structure implements ListTerm {
         }
         return null;
     }
+    
+    public void swap(int i1, int i2) {
+    	Term el1 = get(i1).clone();
+    	Term el2 = get(i2).clone();
+    	set(i1, el2);
+    	set(i2,el1);
+    }
 
     public List<Term> subList(int arg0, int arg1) {
         return getAsList().subList(arg0, arg1);
